@@ -45,8 +45,8 @@ Below is quick example how to use lustache:
     if lustache do not need cache in nginx or other host app,must call function 
     lustache.renderer:clear_cache()
     
-### 如果在针对不想页面缓存的地方,需要明确调用  lustache.renderer:clear_cache() 
-### 默认情况是缓存 子模板, ( 原来代码有点缺陷 )
+## 如果不想缓存子模板则需要明确调用  lustache.renderer:clear_cache() 
+## 默认情况是缓存 子模板 
 
 
 In this example, the `lustache:render` function takes two parameters: 1) the
