@@ -64,9 +64,10 @@ local function compile_tokens(tokens, originalTemplate)
         t == "^" and rnd:_inverted(
           token.value, ctx, subrender(i, token.tokens)
         ) or
-        t == ">" and rnd:_partial(token.value, ctx, originalTemplate) or
+        t == "@" and rnd:_partial(token.value, ctx, originalTemplate) or ---- {{>  replace to {{@ web/test/abc.tpl }}
         (t == "{" or t == "&") and rnd:_name(token.value, ctx, false) or
         t == "name" and rnd:_name(token.value, ctx, true) or
+        t == "_" and rnd:_partial( (rnd:_name(token.value, ctx, false))  , ctx, originalTemplate) or  ----add {{_ variable }} from lua code 
         t == "text" and token.value or ""
     end
     return table_concat(buf)
@@ -254,7 +255,25 @@ function renderer:_partial(name, context, originalTemplate)
 
   -- check if partial cache exists
   if (not fn and self.partials) then
+      ------------- 临时修改代码----------------------------------
+      if not self.partials[name] then
+          ---- 子模板未缓存,则需要重新加载
+          local partial_filename = (name or '') 
+          local read_partial = io.open(partial_filename,"r")
+          if not read_partial then
+            return ""
+          end
 
+          local partial_template  = read_partial:read("*a")
+          read_partial:close()
+
+          ---- 子模板重新渲染
+          local cache_template =  self:render(partial_template,context,self.partials)
+          ---- 子模板需要缓存
+          self.partials[name] = cache_template
+      end
+      ------------- 临时修改代码----------------------------------
+            
     local partial = self.partials[name]
     if (not partial) then
       return ""
